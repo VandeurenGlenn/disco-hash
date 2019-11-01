@@ -1,0 +1,29 @@
+{
+  "name": "disco-hash",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hash.js",
+  "browser": "browser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "c": "rollup -c",
+    "m": "rollup -c rollup.config.minify.js",
+    "b": "browserify hash.js --standalone DiscoHash -o browser.js --sourceType module",
+    "build": "npm run c && npm run b && npm run m"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bs32": "^0.1.5",
+    "is-hex": "^1.1.3",
+    "keccak": "^2.0.0",
+    "varint": "^5.0.0"
+  },
+  "devDependencies": {
+    "browserify": "^16.5.0",
+    "rollup": "^1.26.2",
+    "rollup-plugin-terser": "^5.1.2",
+    "tape": "^4.11.0"
+  }
+}
