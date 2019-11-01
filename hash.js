@@ -9,39 +9,35 @@ var isHex = _interopDefault(require('is-hex'));
 
 var codecs = {  
   // just a hash
-  'disco-hash': { 
-    version: '1.0.0',
-    codec: '81',
-    hashAlg: 'dbl-keccak-512',
-    testnet: 'olivia'
+  'disco-hash': {
+    codec: '30',
+    hashAlg: 'dbl-keccak-512'//,
+    // testnet: 'olivia'
   },
   // normal block
-  'leofcoin-block': { 
-    version: '1.0.0',
-    codec: '81',
-    hashAlg: 'dbl-keccak-512',
-    testnet: 'olivia'
+  'leofcoin-block': {
+    codec: '6c',
+    hashAlg: 'dbl-keccak-512'//,
+    // testnet: 'olivia'
   },
   // itx
-  'leofcoin-itx': { 
-    version: '1.0.0',
-    codec: '82',
-    hashAlg: 'keccak-512',
-    testnet: 'olivia'
+  'leofcoin-itx': {
+    codec: '6c69',
+    hashAlg: 'keccak-512'//,
+    // testnet: 'olivia'
   },
   // peer reputation
-  'leofcoin-pr': { 
-    version: '1.0.0',
-    codec: '83',
-    hashAlg: 'keccak-256',
-    testnet: 'olivia'
+  'leofcoin-pr': {
+    codec: '6c70',
+    hashAlg: 'keccak-256'//,
+    // testnet: 'olivia'
    }
 };
 
 class DiscoHash {
   constructor(buffer, options = {}) {
     if (options.name) this.name = options.name;
-    else this.name = 'leofcoin-block';
+    else this.name = 'disco-hash';
     if (options.codecs) this.codecs = options.codecs;
     else this.codecs = codecs;
     if (buffer) {
@@ -74,6 +70,7 @@ class DiscoHash {
   }
   
   getCodec(name) {
+    if (!name) name = 'disco-hash';
     return this.codecs[name].codec
   }
   
@@ -119,6 +116,7 @@ class DiscoHash {
   
   encode(buffer, name) {
     if (!this.name && name) this.name = name;
+    if (!this.name) this.name = 'disco-hash';
     let codec = this.getCodec(this.name);
     let hashAlg = this.getHashAlg(this.name);
     if (hashAlg.includes('dbl')) {
@@ -128,8 +126,7 @@ class DiscoHash {
     this.digest = createKeccakHash(hashAlg.replace('-', '')).update(buffer).digest();   
     this.size = this.digest.length;
     
-    this.codec = Buffer.from(varint.encode(codec));
-    
+    this.codec = Buffer.from(varint.encode(parseInt(Buffer.from(`0${codec}`, 'hex').toString('hex'), 16)), 'hex');
     this.hash = Buffer.concat([
       this.prefix,
       this.digest
@@ -154,10 +151,17 @@ class DiscoHash {
     if (typeof buffer === 'object') this.fromJSON(buffer);
   }
   
+  _numberToHex(number) {
+    let hex = number.toString(16);
+    if (hex.length % 2 === 1) hex = '0' + hex;
+    
+    return hex
+  }
+  
   decode(buffer) {
     this.hash = buffer;
     const codec = varint.decode(buffer);
-    this.codec = Buffer.from(varint.encode(codec));
+    this.codec = Buffer.from(this._numberToHex(codec), 'hex');
     // TODO: validate codec
     buffer = buffer.slice(varint.decode.bytes);        
     this.size = varint.decode(buffer);

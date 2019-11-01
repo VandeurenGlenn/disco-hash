@@ -7,7 +7,7 @@ import isHex from 'is-hex';
 export default class DiscoHash {
   constructor(buffer, options = {}) {
     if (options.name) this.name = options.name
-    else this.name = 'leofcoin-block'
+    else this.name = 'disco-hash'
     if (options.codecs) this.codecs = options.codecs
     else this.codecs = codecs
     if (buffer) {
@@ -40,6 +40,7 @@ export default class DiscoHash {
   }
   
   getCodec(name) {
+    if (!name) name = 'disco-hash'
     return this.codecs[name].codec
   }
   
@@ -85,6 +86,7 @@ export default class DiscoHash {
   
   encode(buffer, name) {
     if (!this.name && name) this.name = name
+    if (!this.name) this.name = 'disco-hash'
     let codec = this.getCodec(this.name);
     let hashAlg = this.getHashAlg(this.name);
     if (hashAlg.includes('dbl')) {
@@ -94,8 +96,7 @@ export default class DiscoHash {
     this.digest = createKeccakHash(hashAlg.replace('-', '')).update(buffer).digest()   
     this.size = this.digest.length
     
-    this.codec = Buffer.from(varint.encode(codec))
-    
+    this.codec = Buffer.from(varint.encode(parseInt(Buffer.from(`0${codec}`, 'hex').toString('hex'), 16)), 'hex')
     this.hash = Buffer.concat([
       this.prefix,
       this.digest
@@ -120,10 +121,17 @@ export default class DiscoHash {
     if (typeof buffer === 'object') this.fromJSON(buffer)
   }
   
+  _numberToHex(number) {
+    let hex = number.toString(16)
+    if (hex.length % 2 === 1) hex = '0' + hex
+    
+    return hex
+  }
+  
   decode(buffer) {
     this.hash = buffer
     const codec = varint.decode(buffer);
-    this.codec = Buffer.from(varint.encode(codec))
+    this.codec = Buffer.from(this._numberToHex(codec), 'hex')
     // TODO: validate codec
     buffer = buffer.slice(varint.decode.bytes);        
     this.size = varint.decode(buffer);

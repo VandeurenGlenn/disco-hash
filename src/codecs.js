@@ -1,30 +1,26 @@
 export default {  
   // just a hash
-  'disco-hash': { 
-    version: '1.0.0',
-    codec: '81',
-    hashAlg: 'dbl-keccak-512',
-    testnet: 'olivia'
+  'disco-hash': {
+    codec: '30',
+    hashAlg: 'dbl-keccak-512'//,
+    // testnet: 'olivia'
   },
   // normal block
-  'leofcoin-block': { 
-    version: '1.0.0',
-    codec: '81',
-    hashAlg: 'dbl-keccak-512',
-    testnet: 'olivia'
+  'leofcoin-block': {
+    codec: '6c',
+    hashAlg: 'dbl-keccak-512'//,
+    // testnet: 'olivia'
   },
   // itx
-  'leofcoin-itx': { 
-    version: '1.0.0',
-    codec: '82',
-    hashAlg: 'keccak-512',
-    testnet: 'olivia'
+  'leofcoin-itx': {
+    codec: '6c69',
+    hashAlg: 'keccak-512'//,
+    // testnet: 'olivia'
   },
   // peer reputation
-  'leofcoin-pr': { 
-    version: '1.0.0',
-    codec: '83',
-    hashAlg: 'keccak-256',
-    testnet: 'olivia'
+  'leofcoin-pr': {
+    codec: '6c70',
+    hashAlg: 'keccak-256'//,
+    // testnet: 'olivia'
    }
 }
