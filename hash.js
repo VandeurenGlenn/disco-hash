@@ -75,7 +75,7 @@ class DiscoHash {
   encode(buffer, name) {
     if (!this.name && name) this.name = name;
     if (!this.name) this.name = 'disco-hash';
-    this.discoCodec = new DiscoCodec(this.name);
+    this.discoCodec = new DiscoCodec(this.name, this.codecs);
     let hashAlg = this.discoCodec.hashAlg;
     if (hashAlg.includes('dbl')) {
       hashAlg = hashAlg.replace('dbl-', '');
