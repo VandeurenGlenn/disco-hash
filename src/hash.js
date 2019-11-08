@@ -1,19 +1,20 @@
-import codecs from './codecs.js';
 import createKeccakHash from 'keccak';
 import varint from 'varint';
 import bs32 from 'bs32';
 import isHex from 'is-hex';
+import DiscoCodec from 'disco-codec';
 
 export default class DiscoHash {
   constructor(buffer, options = {}) {
     if (options.name) this.name = options.name
     else this.name = 'disco-hash'
     if (options.codecs) this.codecs = options.codecs
-    else this.codecs = codecs
     if (buffer) {
       if (Buffer.isBuffer(buffer)) {
         const codec = varint.decode(buffer);
-        const name = this.getCodecName(codec)
+        this.discoCodec = new DiscoCodec(buffer, this.codecs)
+        
+        const name = this.discoCodec.name
         if (name) {
           this.name = name
           this.decode(buffer)
@@ -31,25 +32,8 @@ export default class DiscoHash {
     
   }
   
-  getCodecName(codec) {
-    codec = String(codec)
-    return Object.keys(this.codecs).reduce((p, c) => {
-      if (this.getCodec(c) === codec) return c;
-      else return p;
-    }, undefined)
-  }
-  
-  getCodec(name) {
-    if (!name) name = 'disco-hash'
-    return this.codecs[name].codec
-  }
-  
-  getHashAlg(name) {
-    return this.codecs[name].hashAlg
-  }
-  
   get prefix() {
-    return Buffer.concat([this.codec, this.length])
+    return Buffer.concat([this.discoCodec.codecBuffer, this.length])
   }
   
   get length() {
@@ -87,8 +71,8 @@ export default class DiscoHash {
   encode(buffer, name) {
     if (!this.name && name) this.name = name
     if (!this.name) this.name = 'disco-hash'
-    let codec = this.getCodec(this.name);
-    let hashAlg = this.getHashAlg(this.name);
+    this.discoCodec = new DiscoCodec(this.name)
+    let hashAlg = this.discoCodec.hashAlg
     if (hashAlg.includes('dbl')) {
       hashAlg = hashAlg.replace('dbl-', '')
       buffer = createKeccakHash(hashAlg.replace('-', '')).update(buffer).digest()          
@@ -96,7 +80,7 @@ export default class DiscoHash {
     this.digest = createKeccakHash(hashAlg.replace('-', '')).update(buffer).digest()   
     this.size = this.digest.length
     
-    this.codec = Buffer.from(varint.encode(parseInt(Buffer.from(`0${codec}`, 'hex').toString('hex'), 16)), 'hex')
+    this.codec = Buffer.from(varint.encode(parseInt(Buffer.from(`0${this.discoCodec.codec}`, 'hex').toString('hex'), 16)), 'hex')
     this.hash = Buffer.concat([
       this.prefix,
       this.digest
@@ -121,17 +105,11 @@ export default class DiscoHash {
     if (typeof buffer === 'object') this.fromJSON(buffer)
   }
   
-  _numberToHex(number) {
-    let hex = number.toString(16)
-    if (hex.length % 2 === 1) hex = '0' + hex
-    
-    return hex
-  }
-  
   decode(buffer) {
     this.hash = buffer
     const codec = varint.decode(buffer);
-    this.codec = Buffer.from(this._numberToHex(codec), 'hex')
+    
+    this.discoCodec = new DiscoCodec(codec, this.codecs)
     // TODO: validate codec
     buffer = buffer.slice(varint.decode.bytes);        
     this.size = varint.decode(buffer);
@@ -140,7 +118,10 @@ export default class DiscoHash {
       throw new Error(`hash length inconsistent: 0x${this.hash.toString('hex')}`)
     }
     
-    this.name = this.getCodecName(codec)
+    // const discoCodec = new DiscoCodec(codec, this.codecs)
+    
+    this.name = this.discoCodec.name
+    
     
     this.size = this.digest.length
     
