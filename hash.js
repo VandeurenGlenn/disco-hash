@@ -5,6 +5,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var createKeccakHash = _interopDefault(require('keccak'));
 var varint = _interopDefault(require('varint'));
 var bs32 = _interopDefault(require('bs32'));
+var bs58 = _interopDefault(require('bs58'));
 var isHex = _interopDefault(require('is-hex'));
 var DiscoCodec = _interopDefault(require('disco-codec'));
 
@@ -15,7 +16,6 @@ class DiscoHash {
     if (options.codecs) this.codecs = options.codecs;
     if (buffer) {
       if (Buffer.isBuffer(buffer)) {
-        const codec = varint.decode(buffer);
         this.discoCodec = new DiscoCodec(buffer, this.codecs);
         
         const name = this.discoCodec.name;
@@ -66,6 +66,14 @@ class DiscoHash {
   
   fromBs32(bs) {
     return this.decode(bs32.decode(bs))
+  }
+  
+  toBs58() {
+    return bs58.encode(this.hash)
+  }
+  
+  fromBs58(bs) {
+    return this.decode(bs58.decode(bs))
   }
   
   toString(encoding = 'utf8') {

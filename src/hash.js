@@ -1,6 +1,7 @@
 import createKeccakHash from 'keccak';
 import varint from 'varint';
 import bs32 from 'bs32';
+import bs58 from 'bs58';
 import isHex from 'is-hex';
 import DiscoCodec from 'disco-codec';
 
@@ -11,7 +12,6 @@ export default class DiscoHash {
     if (options.codecs) this.codecs = options.codecs
     if (buffer) {
       if (Buffer.isBuffer(buffer)) {
-        const codec = varint.decode(buffer);
         this.discoCodec = new DiscoCodec(buffer, this.codecs)
         
         const name = this.discoCodec.name
@@ -62,6 +62,14 @@ export default class DiscoHash {
   
   fromBs32(bs) {
     return this.decode(bs32.decode(bs))
+  }
+  
+  toBs58() {
+    return bs58.encode(this.hash)
+  }
+  
+  fromBs58(bs) {
+    return this.decode(bs58.decode(bs))
   }
   
   toString(encoding = 'utf8') {
