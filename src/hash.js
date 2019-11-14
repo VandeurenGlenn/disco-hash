@@ -11,22 +11,23 @@ export default class DiscoHash {
     else this.name = 'disco-hash'
     if (options.codecs) this.codecs = options.codecs
     if (buffer) {
+      
       if (Buffer.isBuffer(buffer)) {
         this.discoCodec = new DiscoCodec(buffer, this.codecs)
-        
         const name = this.discoCodec.name
+        
         if (name) {
           this.name = name
           this.decode(buffer)
         } else {
           this.encode(buffer)
         }
-        
-        
       }
+      
       if (typeof buffer === 'string') {
         if (isHex(buffer)) this.fromHex(buffer)
         if (bs32.test(buffer)) this.fromBs32(buffer)
+        else this.fromBs58(buffer)
       } else if (typeof buffer === 'object') this.fromJSON(buffer)
     }
     
@@ -77,9 +78,10 @@ export default class DiscoHash {
   }
   
   encode(buffer, name) {
-    if (!this.name && name) this.name = name
-    if (!this.name) this.name = 'disco-hash'
+    if (!this.name && name) this.name = name;
+    if (!buffer) buffer = this.buffer;
     this.discoCodec = new DiscoCodec(this.name, this.codecs)
+    this.discoCodec.fromName(this.name)
     let hashAlg = this.discoCodec.hashAlg
     if (hashAlg.includes('dbl')) {
       hashAlg = hashAlg.replace('dbl-', '')
@@ -88,7 +90,8 @@ export default class DiscoHash {
     this.digest = createKeccakHash(hashAlg.replace('-', '')).update(buffer).digest()   
     this.size = this.digest.length
     
-    this.codec = Buffer.from(varint.encode(parseInt(Buffer.from(`0${this.discoCodec.codec}`, 'hex').toString('hex'), 16)), 'hex')
+    this.codec = this.discoCodec.encode();
+    this.codec = this.discoCodec.codecBuffer
     this.hash = Buffer.concat([
       this.prefix,
       this.digest
