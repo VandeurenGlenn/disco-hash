@@ -4,6 +4,12 @@ export default [{
   input: 'src/hash.js',
   output: {
     format: 'cjs',
+    file: './browser.js'
+  }
+}, {
+  input: 'src/hash.js',
+  output: {
+    format: 'cjs',
     file: './hash.js'
   }
 }]
