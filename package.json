@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "c": "rollup -c",
     "m": "rollup -c rollup.config.minify.js",
-    "b": "browserify hash.js --standalone DiscoHash -o browser.js --sourceType module",
+    "b": "browserify hash.js --standalone DiscoHash -o browser.js",
     "build": "npm run c && npm run b && npm run m"
   },
   "keywords": [],
@@ -17,7 +17,7 @@
   "dependencies": {
     "bs32": "^0.1.6",
     "bs58": "^4.0.1",
-    "disco-codec": "^1.0.5",
+    "disco-codec": "^1.0.6",
     "is-hex": "^1.1.3",
     "keccak": "^2.0.0",
     "varint": "^5.0.0"
