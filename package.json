@@ -20,7 +20,7 @@
     "disco-codec": "^1.0.8",
     "is-hex": "^1.1.3",
     "keccak": "^2.0.0",
-    "varint": "^5.0.0"
+    "varint": "^5.0.2"
   },
   "devDependencies": {
     "browserify": "^16.5.0",
